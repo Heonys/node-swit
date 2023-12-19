@@ -1,33 +1,38 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // import { useState } from "react";
-import { Switch, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import type TweetService from "./service/tweet";
 import "./App.css";
 import AllTweets from "./pages/AllTweets";
 import MyTweets from "./pages/MyTweets";
 import Header from "./components/Header";
+import { useAuth } from "./context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   tweetService: TweetService;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function App({ tweetService }: Props) {
+  // @ts-ignore
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const onLogout = () => {
+    if (window.confirm("Do you want to log out?")) {
+      logout();
+      navigate("/");
+    }
+  };
+
   return (
     <>
-      <Header />
-      <Switch>
-        (
-        <>
-          <Route exact path="/">
-            <AllTweets tweetService={tweetService} />
-          </Route>
-          <Route exact path="/:username">
-            <MyTweets tweetService={tweetService} />
-          </Route>
-        </>
-        )
-      </Switch>
+      {user && <Header username={user.username} onLogout={onLogout} />}
+      <Routes>
+        <Route path="/" element={<AllTweets tweetService={tweetService} />}></Route>
+        <Route path="/:username" element={<MyTweets tweetService={tweetService} />}></Route>
+      </Routes>
     </>
   );
 }

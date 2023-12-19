@@ -1,4 +1,4 @@
-interface Tweet {
+export interface Tweet {
   id: number;
   text: string;
   createdAt: Date | string;
@@ -11,43 +11,71 @@ export default class TweetService {
   constructor(public baseUrl: string) {
     this.baseUrl = baseUrl;
   }
-  tweets: Tweet[] = [
-    {
-      id: 1,
-      text: "드림코딩에서 강의 들으면 너무 좋으다",
-      createdAt: "2021-05-09T04:20:57.000Z",
-      name: "Bob",
-      username: "bob",
-      url: "https://widgetwhats.com/app/uploads/2019/11/free-profile-photo-whatsapp-1.png",
-    },
-  ];
 
-  async getTweets(username: string) {
-    return username ? this.tweets.filter((tweet) => tweet.username === username) : this.tweets;
+  async getTweets(username?: string): Promise<Tweet[]> {
+    const query = username ? `?username=${username}` : "";
+
+    const response = await fetch(`${this.baseUrl}/tweets${query}`, {
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+
+    if (response.status !== 200) {
+      throw new Error("server error");
+    }
+    return data;
   }
 
-  async postTweet(text: string) {
+  async postTweet(text: string): Promise<Tweet[]> {
     const tweet = {
-      id: Date.now(),
-      createdAt: new Date(),
-      name: "Ellie",
-      username: "ellie",
       text,
+      username: "jiheon",
+      name: "Jiheon",
     };
-    this.tweets.push(tweet);
-    return tweet;
+
+    const response = await fetch(`${this.baseUrl}/tweets`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(tweet),
+    });
+
+    const data = await response.json();
+
+    if (response.status !== 201) {
+      throw new Error("server error");
+    }
+    return data;
   }
 
   async deleteTweet(tweetId: number) {
-    this.tweets = this.tweets.filter((tweet) => tweet.id !== tweetId);
+    const response = await fetch(`${this.baseUrl}/tweets/${tweetId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status !== 204) {
+      throw new Error("server error");
+    }
   }
 
-  async updateTweet(tweetId: number, text: string) {
-    const tweet = this.tweets.find((tweet) => tweet.id === tweetId);
-    if (!tweet) {
-      throw new Error("tweet not found!");
+  async updateTweet(tweetId: number, text: string): Promise<Tweet> {
+    const response = await fetch(`${this.baseUrl}/tweets/${tweetId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text }),
+    });
+
+    const data = await response.json();
+
+    if (response.status !== 200) {
+      throw new Error("server error");
     }
-    tweet.text = text;
-    return tweet;
+    return data;
   }
 }

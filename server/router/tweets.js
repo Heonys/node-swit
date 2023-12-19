@@ -3,19 +3,20 @@ import express from "express";
 let tweets = [
   {
     id: "1",
-    text: "김지헌 화이팅",
+    text: "화이팅11",
     createdAt: Date.now().toString(),
     name: "Bob",
     username: "bob",
-    url: "https://widgetwhats.com/app/uploads/2019/11/free-profile-photo-whatsapp-1.png",
+    url: "",
   },
+
   {
     id: "2",
-    text: "김지헌 화이팅22",
+    text: "화이팅22",
     createdAt: Date.now().toString(),
     name: "jiheon",
     username: "jiheon",
-    url: "https://widgetwhats.com/app/uploads/2019/11/free-profile-photo-whatsapp-1.png",
+    url: "",
   },
 ];
 
