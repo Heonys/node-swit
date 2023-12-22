@@ -1,3 +1,5 @@
+import Header from "@/components/Header";
+import Login from "@/pages/Login";
 import type AuthService from "@/service/auth";
 import {
   createContext,
@@ -16,22 +18,22 @@ type Props = {
   authErrorEventBus: AuthErrorEventBus;
 };
 
+export type SignUpParmas = {
+  username: string;
+  password: string;
+  name: string;
+  email: string;
+  url: string;
+};
+
 type LoginInfo = {
   username: string;
   token: string;
 };
 
-const defaultValur = {
-  user: { username: "", token: "" },
-  signUp: () => {},
-  logIn: () => {},
-  logout: () => {},
-};
-
-const AuthContext = createContext<any>(defaultValur);
+const AuthContext = createContext<any>({});
 const contextRef = createRef();
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const AuthProvider = ({ authService, authErrorEventBus, children }: Props) => {
   const [user, setUser] = useState<LoginInfo>();
 
@@ -71,7 +73,18 @@ export const AuthProvider = ({ authService, authErrorEventBus, children }: Props
     [user, signUp, logIn, logout]
   );
 
-  return <AuthContext.Provider value={context}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={context}>
+      {user ? (
+        children
+      ) : (
+        <div className="app">
+          <Header />
+          <Login onSignUp={signUp} onLogin={logIn} />
+        </div>
+      )}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => useContext(AuthContext);

@@ -5,10 +5,11 @@ import TweetService from "./service/tweet.ts";
 import { AuthErrorEventBus, AuthProvider } from "./context/AuthContext.tsx";
 import { BrowserRouter } from "react-router-dom";
 import AuthService from "./service/auth.ts";
+import { HttpClient } from "./client/http.ts";
 
-// const baseURL = process.env.REACT_APP_BASE_URL!;
-const baseURL = "http://localhost:8080";
-const tweetService = new TweetService(baseURL);
+const baseURL = import.meta.env.VITE_BASE_URL;
+const httpClient = new HttpClient(baseURL);
+const tweetService = new TweetService(httpClient);
 const authErrorEventBus = new AuthErrorEventBus();
 const authService = new AuthService();
 

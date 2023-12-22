@@ -1,75 +1,31 @@
 import express from "express";
-
-let tweets = [
-  {
-    id: "1",
-    text: "화이팅11",
-    createdAt: Date.now().toString(),
-    name: "Bob",
-    username: "bob",
-    url: "",
-  },
-
-  {
-    id: "2",
-    text: "화이팅22",
-    createdAt: Date.now().toString(),
-    name: "jiheon",
-    username: "jiheon",
-    url: "",
-  },
-];
+import { body, param } from "express-validator";
+import * as tweetController from "../controller/tweet.js";
+import { validate } from "../middleware/validate.js";
+import { isAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
+const validateTweet = [
+  body("text").trim().isLength({ min: 3 }).withMessage("tex t shoud be at leaast 3 characters"),
+  validate,
+];
+const validateTweetParam = [param("id").isInt(), validate];
+
 // GET /tweets
 // GET /tweets?username=username
-router.get("/", (req, res) => {
-  const username = req.query.username;
-  const data = username ? tweets.filter((t) => t.username === username) : tweets;
-  res.status(200).json(data);
-});
+router.get("/", isAuth, tweetController.getTweets);
 
 // GET /tweets:id
-router.get("/:id", (req, res) => {
-  const id = req.params.id;
-  const tweet = tweets.find((t) => t.id === id);
-  if (tweet) {
-    res.status(200).json(tweet);
-  } else {
-    res.status(404).json({ message: `tweet ${id} not find` });
-  }
-});
+router.get("/:id", isAuth, validateTweetParam, tweetController.getTweet);
+
 // POST /tweets
-router.post("/", (req, res) => {
-  const { text, name, username } = req.body;
-  const tweet = {
-    id: Date.now().toString(),
-    text,
-    createdAt: new Date().toLocaleString(),
-    name,
-    username,
-  };
-  tweets = [tweet, ...tweets];
-  res.status(201).json(tweets);
-});
+router.post("/", isAuth, validateTweet, tweetController.createTweet);
+
 // PUT /tweets:id
-router.put("/:id", (req, res) => {
-  const id = req.params.id;
-  const { text } = req.body;
-  const tweet = tweets.find((t) => t.id === id);
-  if (tweet) {
-    tweet.text = text;
-    res.status(200).json(tweet);
-  } else {
-    res.status(404).json({ message: `tweet ${id} not find` });
-  }
-});
+router.put("/:id", isAuth, validateTweet, tweetController.updateTweet);
+
 // Delete /tweets:id
-router.delete("/:id", (req, res) => {
-  const id = req.params.id;
-  tweets = tweets.filter((t) => t.id !== id);
-  res.sendStatus(204);
-});
+router.delete("/:id", isAuth, validateTweetParam, tweetController.deleteTweet);
 
 export default router;

@@ -55,7 +55,7 @@ const Tweets = memo(({ tweetService, username, addable }: Props) => {
   return (
     <>
       {addable && <NewTweetForm tweetService={tweetService} onError={onError} onCreated={onCreated} />}
-      {error && <Banner text={error} isAlert={true} transient={true} />}
+      {error && <Banner text={error} isAlert={true} />}
       {tweets.length === 0 && <p className="tweets-empty">No Tweets Yet</p>}
       <ul className="tweets">
         {tweets.map((tweet, index) => (

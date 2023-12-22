@@ -1,3 +1,5 @@
+import type { HttpClient } from "@/client/http";
+
 export interface Tweet {
   id: number;
   text: string;
@@ -8,22 +10,13 @@ export interface Tweet {
 }
 
 export default class TweetService {
-  constructor(public baseUrl: string) {
-    this.baseUrl = baseUrl;
+  constructor(public http: HttpClient) {
+    this.http = http;
   }
 
   async getTweets(username?: string): Promise<Tweet[]> {
     const query = username ? `?username=${username}` : "";
-
-    const response = await fetch(`${this.baseUrl}/tweets${query}`, {
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await response.json();
-
-    if (response.status !== 200) {
-      throw new Error("server error");
-    }
-    return data;
+    return this.http.fetch(`/tweets${query}`);
   }
 
   async postTweet(text: string): Promise<Tweet[]> {
@@ -33,49 +26,20 @@ export default class TweetService {
       name: "Jiheon",
     };
 
-    const response = await fetch(`${this.baseUrl}/tweets`, {
+    return this.http.fetch(`/tweets`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(tweet),
     });
-
-    const data = await response.json();
-
-    if (response.status !== 201) {
-      throw new Error("server error");
-    }
-    return data;
   }
 
   async deleteTweet(tweetId: number) {
-    const response = await fetch(`${this.baseUrl}/tweets/${tweetId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.status !== 204) {
-      throw new Error("server error");
-    }
+    return this.http.fetch(`/tweets/${tweetId}`, { method: "DELETE" });
   }
 
   async updateTweet(tweetId: number, text: string): Promise<Tweet> {
-    const response = await fetch(`${this.baseUrl}/tweets/${tweetId}`, {
+    return this.http.fetch(`/tweets/${tweetId}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({ text }),
     });
-
-    const data = await response.json();
-
-    if (response.status !== 200) {
-      throw new Error("server error");
-    }
-    return data;
   }
 }

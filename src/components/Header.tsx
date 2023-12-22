@@ -2,8 +2,8 @@ import { memo } from "react";
 import { Link } from "react-router-dom";
 
 type Props = {
-  username: string;
-  onLogout: () => void;
+  username?: string;
+  onLogout?: () => void;
 };
 
 const Header = memo(({ username, onLogout }: Props) => {

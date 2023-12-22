@@ -3,7 +3,6 @@ import { memo } from "react";
 type Props = {
   text: string;
   isAlert: boolean;
-  transient: boolean;
 };
 
 const Banner = memo(({ text, isAlert }: Props) => (
