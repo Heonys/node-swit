@@ -1,22 +1,21 @@
-import TweetService, { Tweet } from "@/service/tweet";
+import TweetService from "@/service/tweet";
 import { ChangeEvent, FormEvent, useState } from "react";
 
 type Props = {
   tweetService: TweetService;
   onError: (error: string) => void;
-  onCreated: (tweet: Tweet[]) => void;
 };
 
-const NewTweetForm = ({ tweetService, onError, onCreated }: Props) => {
+const NewTweetForm = ({ tweetService, onError }: Props) => {
   const [tweet, setTweet] = useState("");
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     tweetService
       .postTweet(tweet)
-      .then((created) => {
+      .then(() => {
         setTweet("");
-        onCreated(created);
+        // onCreated(created);
       })
       .catch(onError);
   };

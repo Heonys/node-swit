@@ -35,7 +35,7 @@ const AuthContext = createContext<any>({});
 const contextRef = createRef();
 
 export const AuthProvider = ({ authService, authErrorEventBus, children }: Props) => {
-  const [user, setUser] = useState<LoginInfo>();
+  const [user, setUser] = useState<LoginInfo | undefined>();
 
   useImperativeHandle(contextRef, () => (user ? user.token : undefined));
 
@@ -98,7 +98,7 @@ export class AuthErrorEventBus {
   listen(callback: Callback) {
     this.callback = callback;
   }
-  notify(error: string) {
+  notify(error: Error) {
     this.callback!(error);
   }
 }

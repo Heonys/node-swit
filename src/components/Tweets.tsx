@@ -24,10 +24,13 @@ const Tweets = memo(({ tweetService, username, addable }: Props) => {
       .getTweets(username)
       .then((tweets) => setTweets([...tweets]))
       .catch(onError);
+
+    const stopSync = tweetService.onSync((tweet) => onCreated(tweet));
+    return () => stopSync();
   }, [tweetService, username, user]);
 
-  const onCreated = (tweet: Tweet[]) => {
-    setTweets(() => [...tweet]);
+  const onCreated = (tweet: Tweet) => {
+    setTweets((tweets) => [tweet, ...tweets]);
   };
 
   const onDelete = (tweetId: number) => {
@@ -54,7 +57,7 @@ const Tweets = memo(({ tweetService, username, addable }: Props) => {
 
   return (
     <>
-      {addable && <NewTweetForm tweetService={tweetService} onError={onError} onCreated={onCreated} />}
+      {addable && <NewTweetForm tweetService={tweetService} onError={onError} />}
       {error && <Banner text={error} isAlert={true} />}
       {tweets.length === 0 && <p className="tweets-empty">No Tweets Yet</p>}
       <ul className="tweets">

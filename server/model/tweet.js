@@ -1,26 +1,23 @@
 import * as userRepository from "../model/auth.js";
 
 let tweets = [
-  {
-    id: "1",
-    text: "화이팅11",
-    createdAt: new Date().toString(),
-    userId: "1",
-  },
-
-  {
-    id: "2",
-    text: "화이팅22",
-    createdAt: new Date().toString(),
-    userId: "1",
-  },
+  // {
+  //   id: "1",
+  //   text: "화이팅11",
+  //   createdAt: new Date().toString(),
+  //   userId: "1",
+  // },
+  // {
+  //   id: "2",
+  //   text: "화이팅22",
+  //   createdAt: new Date().toString(),
+  //   userId: "1",
+  // },
 ];
 
 export async function getAll() {
   return Promise.all(
     tweets.map(async (tweet) => {
-      const data = await userRepository.findById(tweet.userId);
-      console.log("@@zzzzzzz ::", data);
       const { name, username, url } = await userRepository.findById(tweet.userId);
       return { ...tweet, name, username, url };
     })
@@ -48,7 +45,7 @@ export async function create(text, userId) {
     userId,
   };
   tweets = [tweet, ...tweets];
-  return getById(tweets.id);
+  return getById(tweet.id);
 }
 export async function updateById(id, text) {
   const tweet = tweets.find((t) => t.id === id);
