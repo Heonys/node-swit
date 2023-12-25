@@ -11,7 +11,7 @@ const bcyrptSaltRounds = config.bcrypt.saltRouds;
 export async function signup(req, res) {
   const { username, password, name, email, url } = req.body;
 
-  const user = await userRepository.fintByUsername(username);
+  const user = await userRepository.findByUsername(username);
 
   if (user) {
     res.status(409).json({ message: `${username} already exists` });
