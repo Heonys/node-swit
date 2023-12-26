@@ -42,7 +42,6 @@ export async function updateTweet(req, res) {
 
 export async function deleteTweet(req, res) {
   const id = req.params.id;
-
   const tweet = await tweetRepository.getById(id);
   if (!tweet) {
     return res.sendStatus(404);
