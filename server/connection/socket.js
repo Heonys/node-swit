@@ -5,7 +5,7 @@ import config from "../config.js";
 class Socket {
   constructor(server) {
     this.io = new Server(server, {
-      cors: "*",
+      cors: config.cors.allowedOrigin,
     });
 
     this.io.use((socket, next) => {

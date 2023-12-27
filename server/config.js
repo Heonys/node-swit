@@ -23,6 +23,12 @@ const config = {
   db: {
     host: required("DB_HOST"),
   },
+  cors: {
+    allowedOrigin: required("CORS_ALLOW_ORIGIN"),
+  },
+  csrf: {
+    plainToken: required("CSRF_SECRET_KEY"),
+  },
 };
 
 export default config;

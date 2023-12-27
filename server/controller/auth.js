@@ -5,7 +5,7 @@ import config from "../config.js";
 
 // TODO:
 const jwtSecretKey = config.jwt.secretKey;
-const jwtExpiresInDays = config.jwt.expiresInSec;
+const jwtExpiresInSec = config.jwt.expiresInSec;
 const bcyrptSaltRounds = config.bcrypt.saltRouds;
 
 export async function signup(req, res) {
@@ -26,7 +26,8 @@ export async function signup(req, res) {
   });
 
   const token = createJwtToken(userId);
-  res.status(201).json({ username, token });
+  setToken(res, token);
+  return res.status(201).json({ username, token });
 }
 
 export async function login(req, res) {
@@ -39,7 +40,12 @@ export async function login(req, res) {
   if (!isValidPassword) return res.status(401).json({ message: "Invalid user or password" });
 
   const token = createJwtToken(user.id);
+  setToken(res, token);
   return res.status(200).json({ token, username });
+}
+
+export async function logout(req, res) {
+  res.cookie("token", ""), res.status(200).json({ message: "User has been logged out" });
 }
 
 export async function me(req, res) {
@@ -49,5 +55,24 @@ export async function me(req, res) {
 }
 
 function createJwtToken(id) {
-  return jwt.sign({ id }, jwtSecretKey, { expiresIn: jwtExpiresInDays });
+  return jwt.sign({ id }, jwtSecretKey, { expiresIn: jwtExpiresInSec });
+}
+
+function setToken(res, token) {
+  const options = {
+    maxAge: config.jwt.expiresInSec * 1000,
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+  };
+  res.cookie("token", token, options);
+}
+
+export async function csrfToken(req, res) {
+  const csrfToken = await generateCSRFToken();
+  res.status(200).json({ csrfToken });
+}
+
+async function generateCSRFToken() {
+  return bcrypt.hash(config.csrf.plainToken, 1);
 }

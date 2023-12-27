@@ -3,10 +3,12 @@ import type { AuthErrorEventBus } from "@/context/AuthContext";
 export class HttpClient {
   constructor(
     public baseUrl: string,
-    public authErrorEventBus: AuthErrorEventBus
+    public authErrorEventBus: AuthErrorEventBus,
+    public getCsrfToken: () => any
   ) {
     this.baseUrl = baseUrl;
     this.authErrorEventBus = authErrorEventBus;
+    this.getCsrfToken = getCsrfToken;
   }
 
   async fetch(url: string, options?: RequestInit) {
@@ -15,7 +17,9 @@ export class HttpClient {
       headers: {
         "Content-Type": "application/json",
         ...options?.headers,
+        "_csrf-token": this.getCsrfToken(),
       },
+      credentials: "include",
     });
     let data;
     try {

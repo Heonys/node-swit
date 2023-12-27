@@ -32,12 +32,15 @@ type LoginInfo = {
 };
 
 const AuthContext = createContext<any>({});
-const contextRef = createRef();
+const tokenRef = createRef();
+const csrfRef = createRef();
 
 export const AuthProvider = ({ authService, authErrorEventBus, children }: Props) => {
   const [user, setUser] = useState<LoginInfo | undefined>();
+  const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
 
-  useImperativeHandle(contextRef, () => (user ? user.token : undefined));
+  useImperativeHandle(tokenRef, () => (user ? user.token : undefined));
+  useImperativeHandle(csrfRef, () => csrfToken);
 
   useEffect(() => {
     authErrorEventBus.listen((err) => {
@@ -45,6 +48,10 @@ export const AuthProvider = ({ authService, authErrorEventBus, children }: Props
       setUser(undefined);
     });
   }, [authErrorEventBus]);
+
+  useEffect(() => {
+    authService.scrfToken().then(setCsrfToken).catch(console.error);
+  }, [authService]);
 
   useEffect(() => {
     authService.me().then(setUser).catch(console.error);
@@ -89,7 +96,8 @@ export const AuthProvider = ({ authService, authErrorEventBus, children }: Props
 
 export const useAuth = () => useContext(AuthContext);
 
-export const fetchToken = () => contextRef.current;
+export const fetchToken = () => tokenRef.current;
+export const fetchCsrfToken = () => csrfRef.current;
 
 type Callback = (...args: unknown[]) => unknown;
 
