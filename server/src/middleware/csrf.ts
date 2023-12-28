@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
+import { Request, Response, NextFunction } from "express";
 import config from "../config.js";
 
-export const csrfCheck = (req, res, next) => {
+export const csrfCheck = (req: Request, res: Response, next: NextFunction) => {
   if (req.method === "GET" || req.method === "OPTIONS" || req.method === "HEAD") {
     return next();
   }
@@ -27,6 +28,6 @@ export const csrfCheck = (req, res, next) => {
     });
 };
 
-async function validateCsrfToken(csrfHeader) {
+async function validateCsrfToken(csrfHeader: string) {
   return bcrypt.compare(config.csrf.plainToken, csrfHeader);
 }

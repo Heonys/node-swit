@@ -1,9 +1,11 @@
+import jwt, { VerifyErrors } from "jsonwebtoken";
 import { Server } from "socket.io";
-import jwt from "jsonwebtoken";
+import http from "http";
 import config from "../config.js";
 
 class Socket {
-  constructor(server) {
+  public io: Server;
+  constructor(server: http.Server) {
     this.io = new Server(server, {
       cors: config.cors.allowedOrigin,
     });
@@ -13,7 +15,7 @@ class Socket {
       if (!token) {
         return next(new Error("Authentocation error"));
       }
-      jwt.verify(token, config.jwt.secretKey, (error) => {
+      jwt.verify(token, config.jwt.secretKey, (error: VerifyErrors | null) => {
         if (error) {
           return next(new Error("Authentocation error"));
         }
@@ -26,8 +28,8 @@ class Socket {
     });
   }
 }
-let socket;
-export function initSocket(server) {
+let socket: Socket | undefined;
+export function initSocket(server: http.Server) {
   if (!socket) {
     socket = new Socket(server);
   }

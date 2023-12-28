@@ -1,6 +1,6 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
-import halmet from "helmet";
+import helmet from "helmet";
 import morgan from "morgan";
 import cookiePaer from "cookie-parser";
 import tweetRouter from "./router/tweets.js";
@@ -21,7 +21,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cookiePaer());
-app.use(halmet());
+app.use(helmet());
 app.use(cors(corsOption));
 app.use(morgan("tiny"));
 app.use(rateLimit);
@@ -30,11 +30,11 @@ app.use(csrfCheck);
 app.use("/tweets", tweetRouter);
 app.use("/auth", authRouter);
 
-app.use((req, res) => {
+app.use((req: Request, res: Response) => {
   res.sendStatus(404);
 });
 
-app.use((err, req, res) => {
+app.use((err: any, req: Request, res: Response) => {
   console.error(err);
   res.sendStatus(500);
 });
@@ -44,4 +44,4 @@ connectDB()
     const server = app.listen(config.host.port);
     initSocket(server);
   })
-  .catch(console.err);
+  .catch(console.error);
