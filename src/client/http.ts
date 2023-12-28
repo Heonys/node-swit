@@ -1,42 +1,54 @@
+import axios, { AxiosInstance } from "axios";
 import type { AuthErrorEventBus } from "@/context/AuthContext";
+import axiosRetry from "axios-retry";
 
 export class HttpClient {
+  public client: AxiosInstance;
   constructor(
-    public baseUrl: string,
+    baseUrl: string,
     public authErrorEventBus: AuthErrorEventBus,
     public getCsrfToken: () => any
   ) {
-    this.baseUrl = baseUrl;
     this.authErrorEventBus = authErrorEventBus;
     this.getCsrfToken = getCsrfToken;
+    this.client = axios.create({
+      baseURL: baseUrl,
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+    axiosRetry(this.client, {
+      retries: 5,
+      retryDelay: (retry) => {
+        const delay = Math.pow(2, retry) * 100;
+        const jitter = delay * 0.1 * Math.random();
+        return delay + jitter;
+      },
+      retryCondition: (err) => axiosRetry.isNetworkOrIdempotentRequestError(err) || err.response?.status === 429,
+    });
   }
 
-  async fetch(url: string, options?: RequestInit) {
-    const response = await fetch(`${this.baseUrl}${url}`, {
-      ...options,
+  async fetch(url: string, options: RequestInit) {
+    const { headers, method, body } = options;
+    const req: any = {
+      url,
+      method,
+      data: body,
       headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
+        ...headers,
         "_csrf-token": this.getCsrfToken(),
       },
-      credentials: "include",
-    });
-    let data;
-    try {
-      data = await response.json();
-    } catch (error) {
-      // console.error(error);
-    }
+    };
 
-    if (response.status > 299 || response.status < 200) {
-      const message = data && data.message ? data.message : "something went wrong";
-      const error = new Error(message);
-      if (response.status === 401) {
-        this.authErrorEventBus.notify(error);
-        return;
+    try {
+      const res = await this.client(req);
+      return res.data;
+    } catch (error: any) {
+      if (error.response) {
+        const data = error.response.data;
+        const message = data && data.message ? data.message : "something went wrong";
+        throw new Error(message);
       }
-      throw error;
+      throw new Error("connecttion Error ");
     }
-    return data;
   }
 }

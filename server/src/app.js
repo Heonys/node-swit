@@ -9,6 +9,7 @@ import config from "./config.js";
 import { initSocket } from "./connection/socket.js";
 import { connectDB } from "./db/database.js";
 import { csrfCheck } from "./middleware/csrf.js";
+import rateLimit from "./middleware/rate-limiter.js";
 
 const corsOption = {
   origin: config.cors.allowedOrigin,
@@ -23,6 +24,7 @@ app.use(cookiePaer());
 app.use(halmet());
 app.use(cors(corsOption));
 app.use(morgan("tiny"));
+app.use(rateLimit);
 
 app.use(csrfCheck);
 app.use("/tweets", tweetRouter);
